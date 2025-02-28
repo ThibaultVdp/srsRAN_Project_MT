@@ -48,6 +48,9 @@ public:
   void rem_ue(du_ue_index_t ue_idx);
   void config_applied(du_ue_index_t ue_idx);
 
+  /// Update slice with the provided RRM policy config.
+  bool update_slice_config(const rrm_policy_ratio_group reconf);
+
   /// Get next RAN slice for PDSCH scheduling.
   std::optional<dl_ran_slice_candidate> get_next_dl_candidate();
 
@@ -129,6 +132,12 @@ private:
   ue* fetch_ue_to_update(du_ue_index_t ue_idx);
 
   void add_impl(const ue& u);
+
+  // Find slice by ID.
+  ran_slice_sched_context* find_slice(s_nssai_t s_nssai);
+
+  /// Generate slice RRM policy config.
+  slice_rrm_policy_config generate_slice_rrm_policy_config(const rrm_policy_ratio_group& rrm_policy, unsigned nof_cell_crbs);
 
   template <bool IsDownlink>
   std::optional<std::conditional_t<IsDownlink, dl_ran_slice_candidate, ul_ran_slice_candidate>> get_next_candidate();

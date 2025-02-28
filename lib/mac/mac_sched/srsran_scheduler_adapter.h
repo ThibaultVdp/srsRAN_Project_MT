@@ -54,6 +54,8 @@ public:
 
   async_task<bool> handle_ue_reconfiguration_request(const mac_ue_reconfiguration_request& msg) override;
 
+  async_task<bool> handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) override;
+
   async_task<bool> handle_ue_removal_request(const mac_ue_delete_request& msg) override;
 
   void handle_ue_config_applied(du_ue_index_t ue_index) override;

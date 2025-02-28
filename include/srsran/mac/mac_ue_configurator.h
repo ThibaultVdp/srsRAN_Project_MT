@@ -134,6 +134,8 @@ public:
   /// \brief Creates a UE context in the MAC.
   virtual async_task<mac_ue_create_response> handle_ue_create_request(const mac_ue_create_request& cfg) = 0;
 
+  virtual async_task<bool> handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) = 0;
+
   /// \brief Reconfigures an existing UE context in the MAC.
   virtual async_task<mac_ue_reconfiguration_response>
   handle_ue_reconfiguration_request(const mac_ue_reconfiguration_request& cfg) = 0;

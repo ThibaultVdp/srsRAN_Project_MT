@@ -59,6 +59,13 @@ public:
   /// \return Asynchronous task handle that represents the state and outcome of the UE reconfiguration task.
   virtual async_task<bool> handle_ue_reconfiguration_request(const mac_ue_reconfiguration_request& msg) = 0;
 
+  /// \brief Reconfigures an existing slice in the scheduler.
+  ///
+  /// \param cell_index DU-specific index of the cell to reconfigure.
+  /// \param reconf new configuration for existing slice.
+  /// \return Asynchronous task handle that represents the state and outcome of the slice reconfiguration task.
+  virtual async_task<bool> handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) = 0;
+
   /// \brief Removes UE from MAC scheduler in an asynchronous manner.
   /// The scheduler shouldn't allocate more grants directed at the UE being removed after this procedure is complete.
   virtual async_task<bool> handle_ue_removal_request(const mac_ue_delete_request& msg) = 0;

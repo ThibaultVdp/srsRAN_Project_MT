@@ -43,6 +43,7 @@ public:
   uint32_t                              get_action_id() override;
   bool                                  ric_control_action_supported(const e2sm_ric_control_request& req) override = 0;
   async_task<e2sm_ric_control_response> execute_ric_control_action(const e2sm_ric_control_request& req) override   = 0;
+  async_task<e2sm_ric_control_response> execute_ric_slice_control_action(const e2sm_ric_control_request& req) override   = 0;
   async_task<e2sm_ric_control_response> return_ctrl_failure(const e2sm_ric_control_request& req);
 
 protected:
@@ -60,6 +61,7 @@ public:
   /// e2sm_control_request_executor functions.
   bool                                  ric_control_action_supported(const e2sm_ric_control_request& req) override;
   async_task<e2sm_ric_control_response> execute_ric_control_action(const e2sm_ric_control_request& req) override;
+  async_task<e2sm_ric_control_response> execute_ric_slice_control_action(const e2sm_ric_control_request& req) override;
   void parse_action_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_p,
                                         uint64_t                                  ran_param_id,
                                         uint64_t                                  ue_id,

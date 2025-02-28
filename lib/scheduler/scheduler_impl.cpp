@@ -55,6 +55,21 @@ bool scheduler_impl::handle_cell_configuration_request(const sched_cell_configur
   return true;
 }
 
+bool scheduler_impl::update_cell_rrm(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf)
+{
+  if (!cells.contains(cell_index)) {
+    logger.warning("cell={}: Cannot update RRM policy. Cause: Cell not found", fmt::underlying(cell_index));
+    return false;
+  }
+  return cells[cell_index]->ue_sched.get_slice_scheduler(cell_index)->update_slice_config(reconf);
+}
+
+void scheduler_impl::handle_slice_reconfiguration_request(
+  du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) 
+{
+  logger.info("Handling slice reconfiguration for cell_index {}", fmt::underlying(cell_index));
+}
+
 void scheduler_impl::handle_sib1_update_request(const sib1_pdu_update_request& req)
 {
   srsran_assert(cells.contains(req.cell_index), "cell={} does not exist", fmt::underlying(req.cell_index));

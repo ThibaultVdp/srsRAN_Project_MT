@@ -81,6 +81,9 @@ public:
   virtual async_task<du_mac_sched_control_config_response>
   configure_ue_mac_scheduler(du_mac_sched_control_config reconf) = 0;
 
+  virtual async_task<du_mac_sched_control_config_response>
+  configure_slice_mac_scheduler(du_mac_sched_control_config reconf) = 0;
+
   /// Apply new config updates requested from outside the DU.
   virtual du_param_config_response handle_operator_config_request(const du_param_config_request& req) = 0;
 };

@@ -66,6 +66,14 @@ public:
 
   scheduler_positioning_handler& get_positioning_handler() override { return event_mng; }
 
+  slice_scheduler* get_slice_scheduler(du_cell_index_t cell_index) override
+  {
+    if (cell_index >= cells.size() || !cells[cell_index].cell_res_alloc) {
+      return nullptr;
+    }
+    return &cells[cell_index].slice_sched;
+  }
+
 private:
   void run_sched_strategy(slot_point sl_tx, du_cell_index_t cell_index);
 

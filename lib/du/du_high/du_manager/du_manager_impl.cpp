@@ -25,6 +25,7 @@
 #include "procedures/du_param_config_procedure.h"
 #include "procedures/du_stop_procedure.h"
 #include "procedures/du_ue_ric_configuration_procedure.h"
+#include "procedures/du_slice_ric_configuration_procedure.h"
 #include "procedures/initial_du_setup_procedure.h"
 #include "srsran/support/executors/execute_until_success.h"
 #include <condition_variable>
@@ -217,6 +218,12 @@ async_task<du_mac_sched_control_config_response>
 du_manager_impl::configure_ue_mac_scheduler(du_mac_sched_control_config reconf)
 {
   return launch_async<du_ue_ric_configuration_procedure>(reconf, ue_mng, params);
+}
+
+async_task<du_mac_sched_control_config_response>
+du_manager_impl::configure_slice_mac_scheduler(du_mac_sched_control_config reconf)
+{
+  return launch_async<du_slice_ric_configuration_procedure>(reconf, &main_ctrl_loop, params);
 }
 
 du_param_config_response du_manager_impl::handle_operator_config_request(const du_param_config_request& req)

@@ -298,6 +298,11 @@ public:
     last_ue_reconf_msg = msg;
     return wait_ue_reconf.launch();
   }
+  async_task<bool>
+  handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) override
+  {
+    return launch_no_op_task(true);
+  }
   async_task<mac_ue_delete_response> handle_ue_delete_request(const mac_ue_delete_request& msg) override
   {
     last_ue_delete_msg = msg;

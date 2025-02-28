@@ -23,6 +23,7 @@
 #include "du_ue_manager.h"
 #include "../procedures/du_ue_reset_procedure.h"
 #include "../procedures/du_ue_ric_configuration_procedure.h"
+#include "../procedures/du_slice_ric_configuration_procedure.h"
 #include "../procedures/ue_configuration_procedure.h"
 #include "../procedures/ue_creation_procedure.h"
 #include "../procedures/ue_deletion_procedure.h"

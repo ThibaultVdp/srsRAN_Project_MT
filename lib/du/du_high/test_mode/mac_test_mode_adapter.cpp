@@ -580,6 +580,12 @@ mac_test_mode_adapter::handle_ue_reconfiguration_request(const mac_ue_reconfigur
   return mac_adapted->get_ue_configurator().handle_ue_reconfiguration_request(cfg);
 }
 
+async_task<bool>
+mac_test_mode_adapter::handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf)
+{
+  return mac_adapted->get_ue_configurator().handle_slice_reconfiguration_request(cell_index, reconf);
+}
+
 async_task<mac_ue_delete_response> mac_test_mode_adapter::handle_ue_delete_request(const mac_ue_delete_request& cfg)
 {
   return mac_adapted->get_ue_configurator().handle_ue_delete_request(cfg);

@@ -81,6 +81,8 @@ public:
   /// \param[in] req is a RIC control action request (with control header and message).
   /// \return Returns RIC control response.
   virtual async_task<e2sm_ric_control_response> execute_ric_control_action(const e2sm_ric_control_request& req) = 0;
+  virtual async_task<e2sm_ric_control_response> execute_ric_slice_control_action(const e2sm_ric_control_request& req) = 0;
+
 
   template <typename T, typename Func>
   void parse_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_param,

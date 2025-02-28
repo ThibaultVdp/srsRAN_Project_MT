@@ -132,6 +132,15 @@ mac_scheduler_dummy_adapter::handle_ue_reconfiguration_request(const mac_ue_reco
   });
 }
 
+async_task<bool>
+mac_scheduler_dummy_adapter::handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf)
+{
+  return launch_async([](coro_context<async_task<bool>>& ctx) {
+    CORO_BEGIN(ctx);
+    CORO_RETURN(true);
+  });
+}
+
 async_task<bool> mac_scheduler_dummy_adapter::handle_ue_removal_request(const mac_ue_delete_request& msg)
 {
   return launch_async([](coro_context<async_task<bool>>& ctx) {

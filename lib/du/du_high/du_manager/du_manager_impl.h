@@ -77,6 +77,9 @@ public:
   async_task<du_mac_sched_control_config_response>
   configure_ue_mac_scheduler(du_mac_sched_control_config reconf) override;
 
+  async_task<du_mac_sched_control_config_response>
+  configure_slice_mac_scheduler(du_mac_sched_control_config reconf) override;
+
   du_param_config_response handle_operator_config_request(const du_param_config_request& req) override;
 
   f1ap_du_positioning_handler& get_positioning_handler() override { return *positioning_handler; }

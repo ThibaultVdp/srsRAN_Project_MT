@@ -25,6 +25,7 @@
 #include "ue_creation_procedure.h"
 #include "ue_delete_procedure.h"
 #include "ue_reconfiguration_procedure.h"
+#include "slice_reconfiguration_procedure.h"
 
 using namespace srsran;
 
@@ -74,6 +75,12 @@ async_task<mac_ue_reconfiguration_response>
 mac_controller::handle_ue_reconfiguration_request(const mac_ue_reconfiguration_request& msg)
 {
   return launch_async<mac_ue_reconfiguration_procedure>(msg, cfg, ul_unit, dl_unit, sched_cfg);
+}
+
+async_task<bool>
+mac_controller::handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf)
+{
+  return launch_async<mac_slice_reconfiguration_procedure>(cell_index, reconf, cfg, ul_unit, dl_unit, sched_cfg);
 }
 
 void mac_controller::handle_ue_config_applied(du_ue_index_t ue_index)

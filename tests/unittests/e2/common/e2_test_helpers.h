@@ -824,6 +824,16 @@ public:
       CORO_RETURN(srs_du::du_mac_sched_control_config_response{true, true, true});
     });
   }
+  async_task<srs_du::du_mac_sched_control_config_response>
+  configure_slice_mac_scheduler(srs_du::du_mac_sched_control_config reconf) override
+  {
+    srs_du::du_mac_sched_control_config config;
+    config = reconf;
+    return launch_async([](coro_context<async_task<srs_du::du_mac_sched_control_config_response>>& ctx) {
+      CORO_BEGIN(ctx);
+      CORO_RETURN(srs_du::du_mac_sched_control_config_response{true, true, true});
+    });
+  }
   srs_du::du_param_config_response handle_operator_config_request(const srs_du::du_param_config_request& req) override
   {
     return srs_du::du_param_config_response{};

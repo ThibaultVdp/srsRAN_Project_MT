@@ -90,6 +90,12 @@ e2sm_rc_control_action_3_1_cu_executor::execute_ric_control_action(const e2sm_ri
   });
 }
 
+async_task<e2sm_ric_control_response>
+e2sm_rc_control_action_3_1_cu_executor::execute_ric_slice_control_action(const e2sm_ric_control_request& req)
+{
+  return execute_ric_control_action(req);
+}
+
 void e2sm_rc_control_action_3_1_cu_executor::parse_action_ran_parameter_value(
     const asn1::e2sm::ran_param_value_type_c& ran_p,
     uint64_t                                  ran_param_id,

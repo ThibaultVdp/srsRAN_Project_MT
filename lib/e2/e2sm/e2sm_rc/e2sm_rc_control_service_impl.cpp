@@ -149,7 +149,7 @@ e2sm_rc_control_service::execute_control_request(const e2sm_ric_control_request&
     });
   }
 
-  return config_req_executors[ctrl_hdr.ric_ctrl_action_id]->execute_ric_control_action(req);
+  return config_req_executors[ctrl_hdr.ric_ctrl_action_id]->execute_ric_slice_control_action(req);
 }
 
 e2sm_rc_control_service_style_255::e2sm_rc_control_service_style_255() : e2sm_rc_control_service_base(255) {}
@@ -261,7 +261,7 @@ e2sm_rc_control_service_style_255::execute_control_request(const e2sm_ric_contro
 
       if (config_req_executors.find(ric_ctrl_action_id) != config_req_executors.end()) {
         async_task<e2sm_ric_control_response> task =
-            config_req_executors[ric_ctrl_action_id]->execute_ric_control_action(t_req);
+            config_req_executors[ric_ctrl_action_id]->execute_ric_slice_control_action(t_req);
         tasks.push_back(std::move(task));
       }
     }

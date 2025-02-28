@@ -66,6 +66,46 @@ slice_scheduler::slice_scheduler(const cell_configuration& cell_cfg_, ue_reposit
   }
 }
 
+slice_scheduler::ran_slice_sched_context* slice_scheduler::find_slice(s_nssai_t s_nssai)
+{
+  auto it = std::find_if(slices.begin(), slices.end(), [s_nssai](const ran_slice_sched_context& slice) {
+    return slice.inst.cfg.rrc_member.s_nssai == s_nssai;
+  });
+  return it != slices.end() ? &(*it) : nullptr;
+}
+
+slice_rrm_policy_config slice_scheduler::generate_slice_rrm_policy_config(const rrm_policy_ratio_group& rrm_policy, unsigned nof_cell_crbs)
+{
+    slice_rrm_policy_config slice_config;
+    slice_config.rrc_member = rrm_policy.pol_member;
+    if (rrm_policy.min_prb_policy_ratio) {
+        slice_config.min_prb = (*rrm_policy.min_prb_policy_ratio * nof_cell_crbs) / 100;
+    } else {
+        slice_config.min_prb = 0;  // Default to 0 if not set
+    }
+    if (rrm_policy.max_prb_policy_ratio) {
+        slice_config.max_prb = (*rrm_policy.max_prb_policy_ratio * nof_cell_crbs) / 100;
+    } else {
+        slice_config.max_prb = MAX_NOF_PRBS;  // Default max PRBs
+    }
+    slice_config.max_prb = std::max(slice_config.max_prb, slice_config.min_prb);
+    slice_config.policy_sched_cfg = time_rr_scheduler_expert_config{};
+    return slice_config;
+}
+
+bool slice_scheduler::update_slice_config(const rrm_policy_ratio_group reconf)
+{
+  s_nssai_t s_nssai = reconf.pol_member.s_nssai;
+  ran_slice_sched_context* slice_ctx = find_slice(s_nssai);
+  if (slice_ctx) {
+    slice_ctx->inst.cfg = generate_slice_rrm_policy_config(reconf, cell_cfg.nof_dl_prbs);
+    return true;
+  } else {
+    logger.error("Slice with s_nssai[sst={},sd={}] not found", s_nssai.sst.value(), s_nssai.sd.value());
+    return false;
+  }
+}
+
 void slice_scheduler::slot_indication(slot_point slot_tx, const cell_resource_allocator& res_grid)
 {
   // If there are skipped slots, handle them.

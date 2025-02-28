@@ -221,6 +221,23 @@ e2sm_rc_control_action_2_6_du_executor::execute_ric_control_action(const e2sm_ri
       });
 };
 
+async_task<e2sm_ric_control_response>
+e2sm_rc_control_action_2_6_du_executor::execute_ric_slice_control_action(const e2sm_ric_control_request& req)
+{
+  srs_du::du_mac_sched_control_config ctrl_config = convert_to_du_config_request(req);
+  if (ctrl_config.param_list.empty()) {
+    return return_ctrl_failure(req);
+  }
+  return launch_async(
+      [this, ctrl_config = std::move(ctrl_config)](coro_context<async_task<e2sm_ric_control_response>>& ctx) {
+        CORO_BEGIN(ctx);
+        srs_du::du_mac_sched_control_config_response ctrl_response;
+        CORO_AWAIT_VALUE(ctrl_response, du_param_configurator.configure_slice_mac_scheduler(ctrl_config));
+        e2sm_ric_control_response e2_resp = convert_to_e2sm_response(ctrl_config, ctrl_response);
+        CORO_RETURN(e2_resp);
+      });
+};
+
 srs_du::du_mac_sched_control_config
 e2sm_rc_control_action_2_6_du_executor::convert_to_du_config_request(const e2sm_ric_control_request& e2sm_req_)
 {

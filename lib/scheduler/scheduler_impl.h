@@ -37,6 +37,8 @@ public:
   explicit scheduler_impl(const scheduler_config& sched_cfg);
 
   bool handle_cell_configuration_request(const sched_cell_configuration_request_message& msg) override;
+  bool update_cell_rrm(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) override;
+  void handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) override;
 
   // Sys Info handling.
   void handle_sib1_update_request(const sib1_pdu_update_request& req) override;

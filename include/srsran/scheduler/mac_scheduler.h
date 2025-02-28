@@ -43,6 +43,7 @@ class mac_scheduler : public scheduler_configurator,
 {
 public:
   virtual ~mac_scheduler() = default;
+  virtual bool update_cell_rrm(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) = 0;
 };
 
 } // namespace srsran

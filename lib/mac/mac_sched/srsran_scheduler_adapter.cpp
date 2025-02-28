@@ -115,6 +115,14 @@ async_task<bool> srsran_scheduler_adapter::handle_ue_reconfiguration_request(con
   });
 }
 
+async_task<bool> srsran_scheduler_adapter::handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf)
+{
+  return launch_async([this, cell_index, reconf](coro_context<async_task<bool>>& ctx) {
+    CORO_BEGIN(ctx);
+    CORO_RETURN(sched_impl->update_cell_rrm(cell_index, reconf));
+  });
+}
+
 async_task<bool> srsran_scheduler_adapter::handle_ue_removal_request(const mac_ue_delete_request& msg)
 {
   return launch_async([this, msg](coro_context<async_task<bool>>& ctx) {

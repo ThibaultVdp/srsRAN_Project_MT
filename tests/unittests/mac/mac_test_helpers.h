@@ -105,6 +105,7 @@ public:
   void handle_rach_indication(const rach_indication_message& msg) override { last_rach_ind = msg; }
   void handle_ue_creation_request(const sched_ue_creation_request_message& ue_request) override {}
   void handle_ue_reconfiguration_request(const sched_ue_reconfiguration_message& ue_request) override {}
+  void handle_slice_reconfiguration_request(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) override {}
   void handle_ue_removal_request(du_ue_index_t ue_index) override {}
   void handle_ue_config_applied(du_ue_index_t ue_index) override {}
   void handle_sib1_update_request(const sib1_pdu_update_request& req) override {}
@@ -123,6 +124,7 @@ public:
   void handle_dl_buffer_state_indication(const dl_buffer_state_indication_message& bs) override {}
   void handle_positioning_measurement_request(const positioning_measurement_request& req) override {}
   void handle_positioning_measurement_stop(du_cell_index_t cell_index, rnti_t pos_rnti) override {}
+  bool update_cell_rrm(du_cell_index_t cell_index, const rrm_policy_ratio_group reconf) override {return true;}
 };
 
 class dummy_mac_scheduler_adapter : public mac_scheduler_cell_info_handler

@@ -33,6 +33,7 @@ struct cell_resource_allocator;
 class sched_ue_configuration_handler;
 class scheduler_event_logger;
 class cell_metrics_handler;
+class slice_scheduler;
 
 struct ue_scheduler_cell_params {
   du_cell_index_t           cell_index;
@@ -69,6 +70,11 @@ public:
   virtual scheduler_dl_buffer_state_indication_handler& get_dl_buffer_state_indication_handler() = 0;
 
   virtual scheduler_positioning_handler& get_positioning_handler() = 0;
+
+  /// Return slice configurator.
+
+  virtual slice_scheduler* get_slice_scheduler(du_cell_index_t cell_index) = 0;
+
 };
 
 } // namespace srsran
