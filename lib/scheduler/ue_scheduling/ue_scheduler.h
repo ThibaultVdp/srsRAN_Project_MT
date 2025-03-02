@@ -33,7 +33,7 @@ struct cell_resource_allocator;
 class sched_ue_configuration_handler;
 class scheduler_event_logger;
 class cell_metrics_handler;
-class slice_scheduler;
+class inter_slice_scheduler;
 
 struct ue_scheduler_cell_params {
   du_cell_index_t           cell_index;
@@ -73,7 +73,7 @@ public:
 
   /// Return slice configurator.
 
-  virtual slice_scheduler* get_slice_scheduler(du_cell_index_t cell_index) = 0;
+  virtual inter_slice_scheduler* get_slice_scheduler(du_cell_index_t cell_index) = 0;
 
 };
 
