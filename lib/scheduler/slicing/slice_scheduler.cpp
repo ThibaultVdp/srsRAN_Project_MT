@@ -74,36 +74,58 @@ slice_scheduler::ran_slice_sched_context* slice_scheduler::find_slice(s_nssai_t 
   return it != slices.end() ? &(*it) : nullptr;
 }
 
-slice_rrm_policy_config slice_scheduler::generate_slice_rrm_policy_config(const rrm_policy_ratio_group& rrm_policy, unsigned nof_cell_crbs)
+slice_rrm_policy_config* slice_scheduler::find_rrm_policy(s_nssai_t s_nssai)
 {
-    slice_rrm_policy_config slice_config;
-    slice_config.rrc_member = rrm_policy.pol_member;
+  auto it = std::find_if(cell_cfg.rrm_policy_members.begin(), cell_cfg.rrm_policy_members.end(), [s_nssai](const slice_rrm_policy_config& slice) {
+    return slice.rrc_member.s_nssai == s_nssai;
+  });
+  return it != cell_cfg.rrm_policy_members.end() ? &(*it) : nullptr;
+}
+
+std::array<unsigned int, 2> slice_scheduler::generate_slice_prb_bounds(const rrm_policy_ratio_group& rrm_policy)
+{
+    unsigned int min_prb = 0;
+    unsigned int max_prb = MAX_NOF_PRBS;
+    unsigned int nof_cell_prbs = cell_cfg.nof_dl_prbs; // using nof_dl_prbs as cell PRBs since scheduler doesn't differentiate
+
     if (rrm_policy.min_prb_policy_ratio) {
-        slice_config.min_prb = (*rrm_policy.min_prb_policy_ratio * nof_cell_crbs) / 100;
-    } else {
-        slice_config.min_prb = 0;  // Default to 0 if not set
+        min_prb = (*rrm_policy.min_prb_policy_ratio * nof_cell_prbs) / 100;
     }
     if (rrm_policy.max_prb_policy_ratio) {
-        slice_config.max_prb = (*rrm_policy.max_prb_policy_ratio * nof_cell_crbs) / 100;
-    } else {
-        slice_config.max_prb = MAX_NOF_PRBS;  // Default max PRBs
+        max_prb = (*rrm_policy.max_prb_policy_ratio * nof_cell_prbs) / 100;
     }
-    slice_config.max_prb = std::max(slice_config.max_prb, slice_config.min_prb);
-    slice_config.policy_sched_cfg = time_rr_scheduler_expert_config{};
-    return slice_config;
+
+    max_prb = std::max(max_prb, min_prb); // Ensure max_prb is not less than min_prb
+
+    return {min_prb, max_prb};
 }
 
 bool slice_scheduler::update_slice_config(const rrm_policy_ratio_group reconf)
 {
   s_nssai_t s_nssai = reconf.pol_member.s_nssai;
+  std::array<unsigned int, 2> prb_bounds = generate_slice_prb_bounds(reconf);
+  unsigned int min_prb = prb_bounds[0];
+  unsigned int max_prb = prb_bounds[1];
+
   ran_slice_sched_context* slice_ctx = find_slice(s_nssai);
   if (slice_ctx) {
-    slice_ctx->inst.cfg = generate_slice_rrm_policy_config(reconf, cell_cfg.nof_dl_prbs);
-    return true;
+    slice_ctx->inst.cfg.min_prb = min_prb;
+    slice_ctx->inst.cfg.max_prb = max_prb;
   } else {
     logger.error("Slice with s_nssai[sst={},sd={}] not found", s_nssai.sst.value(), s_nssai.sd.value());
     return false;
   }
+
+  slice_rrm_policy_config* rrm_policy = find_rrm_policy(s_nssai);
+  if (rrm_policy) {
+    rrm_policy->min_prb = min_prb;
+    rrm_policy->max_prb = max_prb;
+  } else {
+    logger.error("RRM policy with s_nssai[sst={},sd={}] not found", s_nssai.sst.value(), s_nssai.sd.value());
+    return false;
+  }
+
+  return true;
 }
 
 void slice_scheduler::slot_indication(slot_point slot_tx, const cell_resource_allocator& res_grid)

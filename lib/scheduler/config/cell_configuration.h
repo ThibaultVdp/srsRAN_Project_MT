@@ -70,7 +70,8 @@ public:
   static_vector<uint8_t, 8> dl_data_to_ul_ack;
 
   /// List of RRM Policy members configured for this cell.
-  std::vector<slice_rrm_policy_config> rrm_policy_members;
+  /// Mutable to allow for dynamically updating the RRM Policy members.
+  mutable std::vector<slice_rrm_policy_config> rrm_policy_members;
 
   const bool cfra_enabled;
 

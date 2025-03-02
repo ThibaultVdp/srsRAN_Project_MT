@@ -133,11 +133,14 @@ private:
 
   void add_impl(const ue& u);
 
-  // Find slice by ID.
+  // Find slice reference by s_nssai.
   ran_slice_sched_context* find_slice(s_nssai_t s_nssai);
 
-  /// Generate slice RRM policy config.
-  slice_rrm_policy_config generate_slice_rrm_policy_config(const rrm_policy_ratio_group& rrm_policy, unsigned nof_cell_crbs);
+  // Find slice RRM policy in cell_cfg by s_nssai.
+  slice_rrm_policy_config* find_rrm_policy(s_nssai_t s_nssai);
+
+  // Determine slice PRB bounds
+  std::array<unsigned int, 2> generate_slice_prb_bounds(const rrm_policy_ratio_group& reconf);
 
   template <bool IsDownlink>
   std::optional<std::conditional_t<IsDownlink, dl_ran_slice_candidate, ul_ran_slice_candidate>> get_next_candidate();

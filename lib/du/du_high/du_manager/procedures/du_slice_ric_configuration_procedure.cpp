@@ -53,41 +53,12 @@ manual_event<du_mac_sched_control_config_response>& du_slice_ric_configuration_p
       slice_config_completed.set(du_mac_sched_control_config_response{result, result, result});
       CORO_RETURN();
   }));
-  /*launch_async([this](coro_context<async_task<void>>& ctx) {
-    std::vector<async_task<bool>> tasks = {};
-
-    CORO_BEGIN(ctx);
-
-    bool early_stop = false;
-
-    for (const auto& control_config_params : request.param_list) {
-        if (control_config_params.rrm_policy_group.has_value()) {
-            tasks.push_back(handle_slice_config(control_config_params));
-        } else {
-            early_stop = true;
-            break;
-        }
-    }
-
-    if (early_stop) {
-      for (auto& task : tasks) {
-          CORO_AWAIT(task);
-      }
-      slice_config_completed.set(du_mac_sched_control_config_response{false, false, false});
-    }
-    else slice_config_completed.set(du_mac_sched_control_config_response{true, true, true});
-
-    CORO_RETURN();
-    CORO_BEGIN(ctx);
-    CORO_AWAIT(handle_slice_config(request.param_list[0]));
-    CORO_RETURN();
-  });*/
 
   return slice_config_completed;
 }
 
 async_task<bool> du_slice_ric_configuration_procedure::handle_slice_config() {
-  control_config_params control_config_params = request.param_list[0];
+  control_config_params control_config_params = request.param_list[0]; // TODO: loop over each control config param
   du_cell_index_t cell_index = MIN_DU_CELL_INDEX;
   return du_params.mac.ue_cfg.handle_slice_reconfiguration_request(cell_index, control_config_params.rrm_policy_group.value());
 }
