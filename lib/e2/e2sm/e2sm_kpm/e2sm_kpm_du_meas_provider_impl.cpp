@@ -68,6 +68,11 @@ e2sm_kpm_du_meas_provider_impl::e2sm_kpm_du_meas_provider_impl(srs_du::f1ap_ue_i
           NO_LABEL, E2_NODE_LEVEL | UE_LEVEL, true, &e2sm_kpm_du_meas_provider_impl::get_prb_use_perc_ul});
 
   supported_metrics.emplace(
+      "DRB.PerDataVolumeUL",
+      e2sm_kpm_supported_metric_t{
+          NO_LABEL, E2_NODE_LEVEL | UE_LEVEL, true, &e2sm_kpm_du_meas_provider_impl::get_per_data_volume_ul});
+
+  supported_metrics.emplace(
       "DRB.RlcSduDelayDl",
       e2sm_kpm_supported_metric_t{
           NO_LABEL, ALL_LEVELS, true, &e2sm_kpm_du_meas_provider_impl::get_drb_dl_rlc_sdu_latency});
@@ -431,44 +436,44 @@ bool e2sm_kpm_du_meas_provider_impl::get_prb_avail_ul(const asn1::e2sm::label_in
 }
 
 bool e2sm_kpm_du_meas_provider_impl::get_prb_used_dl(const asn1::e2sm::label_info_list_l          label_info_list,
-                                                     const std::vector<asn1::e2sm::ue_id_c>&      ues,
-                                                     const std::optional<asn1::e2sm::cgi_c>       cell_global_id,
-                                                     std::vector<asn1::e2sm::meas_record_item_c>& items)
+  const std::vector<asn1::e2sm::ue_id_c>&      ues,
+  const std::optional<asn1::e2sm::cgi_c>       cell_global_id,
+  std::vector<asn1::e2sm::meas_record_item_c>& items)
 {
-  bool meas_collected = false;
-  if (last_ue_metrics.empty()) {
-    return handle_no_meas_data_available(ues, items, asn1::e2sm::meas_record_item_c::types::options::integer);
-  }
-  if ((label_info_list.size() > 1 or
-       (label_info_list.size() == 1 and not label_info_list[0].meas_label.no_label_present))) {
-    logger.debug("Metric: RRU.PrbUsedDl supports only NO_LABEL label.");
-    return meas_collected;
-  }
+bool meas_collected = false;
+if (last_ue_metrics.empty()) {
+return handle_no_meas_data_available(ues, items, asn1::e2sm::meas_record_item_c::types::options::integer);
+}
+if ((label_info_list.size() > 1 or
+(label_info_list.size() == 1 and not label_info_list[0].meas_label.no_label_present))) {
+logger.debug("Metric: RRU.PrbUsedDl supports only NO_LABEL label.");
+return meas_collected;
+}
 
-  if (ues.empty()) {
-    double dl_prbs_used =
-        std::accumulate(last_ue_metrics.begin(),
-                        last_ue_metrics.end(),
-                        0,
-                        [](size_t sum, const scheduler_ue_metrics& metric) { return sum + metric.tot_dl_prbs_used; }) /
-        nof_dl_slots;
-    meas_record_item_c meas_record_item;
-    meas_record_item.set_integer() = dl_prbs_used;
-    items.push_back(meas_record_item);
-    meas_collected = true;
-  }
+if (ues.empty()) {
+double dl_prbs_used =
+std::accumulate(last_ue_metrics.begin(),
+last_ue_metrics.end(),
+0,
+[](size_t sum, const scheduler_ue_metrics& metric) { return sum + metric.tot_dl_prbs_used; }) /
+nof_dl_slots;
+meas_record_item_c meas_record_item;
+meas_record_item.set_integer() = dl_prbs_used;
+items.push_back(meas_record_item);
+meas_collected = true;
+}
 
-  for (auto& ue : ues) {
-    gnb_cu_ue_f1ap_id_t gnb_cu_ue_f1ap_id = int_to_gnb_cu_ue_f1ap_id(ue.gnb_du_ue_id().gnb_cu_ue_f1ap_id);
-    uint32_t            ue_idx            = f1ap_ue_id_provider.get_ue_index(gnb_cu_ue_f1ap_id);
-    meas_record_item_c  meas_record_item;
-    unsigned ue_mean_dl_prbs_used  = nof_dl_slots > 0 ? last_ue_metrics[ue_idx].tot_dl_prbs_used / nof_dl_slots : 0;
-    meas_record_item.set_integer() = ue_mean_dl_prbs_used;
-    items.push_back(meas_record_item);
-    meas_collected = true;
-  }
+for (auto& ue : ues) {
+gnb_cu_ue_f1ap_id_t gnb_cu_ue_f1ap_id = int_to_gnb_cu_ue_f1ap_id(ue.gnb_du_ue_id().gnb_cu_ue_f1ap_id);
+uint32_t            ue_idx            = f1ap_ue_id_provider.get_ue_index(gnb_cu_ue_f1ap_id);
+meas_record_item_c  meas_record_item;
+unsigned ue_mean_dl_prbs_used  = nof_dl_slots > 0 ? last_ue_metrics[ue_idx].tot_dl_prbs_used / nof_dl_slots : 0;
+meas_record_item.set_integer() = ue_mean_dl_prbs_used;
+items.push_back(meas_record_item);
+meas_collected = true;
+}
 
-  return meas_collected;
+return meas_collected;
 }
 
 bool e2sm_kpm_du_meas_provider_impl::get_prb_used_ul(const asn1::e2sm::label_info_list_l          label_info_list,
@@ -1072,6 +1077,59 @@ bool e2sm_kpm_du_meas_provider_impl::get_drb_rlc_sdu_transmitted_volume_ul(
       meas_collected = true;
     }
   }
+  return meas_collected;
+}
+
+bool e2sm_kpm_du_meas_provider_impl::get_per_data_volume_ul(const asn1::e2sm::label_info_list_l     label_info_list,
+                                                            const std::vector<asn1::e2sm::ue_id_c>& ues,
+                                                            const std::optional<asn1::e2sm::cgi_c>  cell_global_id,
+                                                            std::vector<asn1::e2sm::meas_record_item_c>& items)
+{
+  bool meas_collected = false;
+  if (last_ue_metrics.empty()) {
+    return handle_no_meas_data_available(ues, items, asn1::e2sm::meas_record_item_c::types::options::integer);
+  }
+  if ((label_info_list.size() > 1 or
+       (label_info_list.size() == 1 and not label_info_list[0].meas_label.no_label_present))) {
+    logger.debug("Metric: DRB.PerDataVolumeUL supports only NO_LABEL label.");
+    return meas_collected;
+  }
+
+  std::map<uint8_t, std::pair<uint64_t, uint64_t>> slice_metrics;
+
+  for (auto& last_ue_metric : last_ue_metrics)
+  {
+    const auto& lcg_metrics = last_ue_metric.lcg_metrics;
+
+    for (const auto& lcg_metric : lcg_metrics) {
+      if (!lcg_metric.slice_id.has_value()) {
+        continue;
+      }
+
+      ran_slice_id_t slice_id = lcg_metric.slice_id.value();
+
+      slice_metrics[slice_id.value()].first += lcg_metric.sum_tbs_bytes;
+      slice_metrics[slice_id.value()].second += lcg_metric.sum_buf_st;
+    }
+  }
+
+  // Create measurement record items for each slice
+  for (const auto& [slice_id, metrics] : slice_metrics) {
+    meas_record_item_c item_slice_id;
+    meas_record_item_c item_tbs;
+    meas_record_item_c item_buf;
+
+    item_slice_id.set_integer() = slice_id + 1; // +1 since slice_id starts from 0 here
+    item_tbs.set_integer() = metrics.first;  // sum_tbs_bytes
+    item_buf.set_integer() = metrics.second; // sum_buf_st
+
+    items.push_back(item_slice_id);
+    items.push_back(item_tbs);
+    items.push_back(item_buf);
+
+    meas_collected = true;
+  }
+
   return meas_collected;
 }
 

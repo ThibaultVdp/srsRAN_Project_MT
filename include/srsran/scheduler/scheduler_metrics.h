@@ -29,9 +29,17 @@
 #include "srsran/ran/sch/sch_mcs.h"
 #include "srsran/ran/slot_point.h"
 #include "srsran/support/math/stats.h"
+#include "srsran/scheduler/config/logical_channel_group.h"
+#include "../../../lib/scheduler/slicing/ran_slice_id.h"
 #include <optional>
 
 namespace srsran {
+
+struct lcg_report {
+  std::optional<ran_slice_id_t> slice_id;
+  uint64_t sum_tbs_bytes = 0;
+  uint64_t sum_buf_st    = 0;
+};
 
 /// \brief Snapshot of the metrics for a UE.
 struct scheduler_ue_metrics {
@@ -58,6 +66,7 @@ struct scheduler_ue_metrics {
   unsigned      nof_pucch_f2f3f4_invalid_csis;
   unsigned      nof_pusch_invalid_harqs;
   unsigned      nof_pusch_invalid_csis;
+  std::array<lcg_report, MAX_NOF_LCGS> lcg_metrics;
   /// Delay metrics.
   /// @{
   std::optional<float> avg_ce_delay_ms;

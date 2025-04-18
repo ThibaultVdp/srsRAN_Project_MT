@@ -152,18 +152,32 @@ unsigned ul_logical_channel_manager::pending_bytes(ran_slice_id_t slice_id) cons
   return bytes;
 }
 
-void ul_logical_channel_manager::handle_ul_grant(unsigned grant_size)
+std::vector<ul_logical_channel_manager::ul_lcg_grant_result> ul_logical_channel_manager::handle_ul_grant(unsigned grant_size)
 {
   // Reset any pending SR indication.
   reset_sr_indication();
 
+  // make list of empty ul_lcg_grant_result structs
+  std::vector<ul_lcg_grant_result> ul_lcg_grant_results;
+  ul_lcg_grant_results.resize(groups.size());
+
   // Update estimates of logical channel bit rates.
   for (unsigned i = 0, e = groups.size(); i != e and grant_size > 0; ++i) {
+    ul_lcg_grant_results[i].lcg_id = uint_to_lcg_id(i);
+    ul_lcg_grant_results[i].slice_id = get_slice_id(ul_lcg_grant_results[i].lcg_id);
     if (groups[i].active and groups[i].buf_st > groups[i].sched_bytes_accum) {
       unsigned bytes_sched = std::min(groups[i].buf_st - groups[i].sched_bytes_accum, grant_size);
       groups[i].last_sched_bytes += bytes_sched;
       groups[i].sched_bytes_accum += bytes_sched;
       grant_size -= bytes_sched;
+
+      ul_lcg_grant_results[i].tbs_bytes = bytes_sched;
+      if(groups[i].buf_st_accum > 0) {
+        ul_lcg_grant_results[i].buf_st = groups[i].buf_st_accum;
+        groups[i].buf_st_accum = 0;
+      }
     }
   }
+
+  return ul_lcg_grant_results;
 }

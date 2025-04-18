@@ -356,6 +356,15 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res
       ues[it->second].data.tot_ul_prbs_used += (ul_grant.pusch_cfg.rbs.type1().length());
     }
     ue_metric_context& u = ues[it->second];
+    for (unsigned i = 0; i < ul_grant.pusch_cfg.lcg_grant_results.size() ; ++i) { // instead of MAX_NOF_LCGS (the lcg_grant_results can be empty at UE connection time)
+      if(!u.data.lcg_metrics[i].slice_id.has_value() && ul_grant.pusch_cfg.lcg_grant_results[i].slice_id.has_value()) {
+        u.data.lcg_metrics[i].slice_id = ul_grant.pusch_cfg.lcg_grant_results[i].slice_id;
+      }
+
+      u.data.lcg_metrics[i].sum_tbs_bytes += ul_grant.pusch_cfg.lcg_grant_results[i].tbs_bytes;
+      u.data.lcg_metrics[i].sum_buf_st += ul_grant.pusch_cfg.lcg_grant_results[i].buf_st;
+    }
+
     u.data.ul_mcs += ul_grant.pusch_cfg.mcs_index.to_uint();
     u.last_ul_olla = ul_grant.context.olla_offset;
     ++u.data.nof_puschs;
@@ -439,6 +448,7 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond
   ret.nof_pucch_f2f3f4_invalid_csis  = data.nof_pucch_f2f3f4_invalid_csis;
   ret.nof_pusch_invalid_harqs        = data.nof_pusch_invalid_harqs;
   ret.nof_pusch_invalid_csis         = data.nof_pusch_invalid_csis;
+  ret.lcg_metrics                    = data.lcg_metrics;
   if (data.nof_ul_ces > 0) {
     ret.avg_ce_delay_ms = (static_cast<float>(data.sum_ul_ce_delay_slots) / (data.nof_ul_ces * slots_per_sf));
     ret.max_ce_delay_ms = data.max_ul_ce_delay_slots;

@@ -143,6 +143,7 @@ void cell_scheduler::run_slot(slot_point sl_tx)
   res_usage_tracer.add_section("sched_common");
 
   // > Schedule UE DL and UL data.
+  // This should deliver the last_sched_bytes and the last_buf_st
   ue_sched.run_slot(sl_tx);
 
   // > Mark stop of the slot processing

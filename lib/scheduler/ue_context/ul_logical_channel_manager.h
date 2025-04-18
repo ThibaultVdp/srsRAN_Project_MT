@@ -32,7 +32,7 @@
 namespace srsran {
 
 class ul_logical_channel_manager
-{
+{  
 public:
   ul_logical_channel_manager(subcarrier_spacing scs, logical_channel_config_list_ptr log_channels_configs);
 
@@ -100,8 +100,9 @@ public:
   /// \brief Update UL BSR for a given LCG-ID.
   void handle_bsr_indication(const ul_bsr_indication_message& msg)
   {
-    for (const auto& lcg_report : msg.reported_lcgs) {
+    for (const auto& lcg_report : msg.reported_lcgs) {      
       groups[lcg_report.lcg_id].buf_st            = lcg_report.nof_bytes;
+      groups[lcg_report.lcg_id].buf_st_accum     += lcg_report.nof_bytes;
       groups[lcg_report.lcg_id].sched_bytes_accum = 0;
     }
   }
@@ -127,16 +128,25 @@ public:
                : 0.0;
   }
 
+  struct ul_lcg_grant_result {
+    lcg_id_t lcg_id;
+    std::optional<ran_slice_id_t> slice_id;
+    unsigned tbs_bytes = 0;
+    unsigned buf_st = 0;
+  };
+
   /// \brief Register the scheduling of an UL grant for this UE.
   ///
   /// This event will be used to update estimated bit rates.
-  void handle_ul_grant(unsigned grant_size);
+  std::vector<ul_lcg_grant_result> handle_ul_grant(unsigned grant_size);
 
 private:
   struct channel_group_context : public intrusive_double_linked_list_element<> {
     bool active = false;
     /// DL Buffer status of this logical channel.
     unsigned buf_st = 0;
+    /// DL Buffer status accumulation for the purpose of returning to cell grid allocator.
+    unsigned buf_st_accum = 0;
     /// Bytes-per-slot average for this logical channel.
     moving_averager<unsigned> avg_bytes_per_slot;
     /// Last slot sched bytes.

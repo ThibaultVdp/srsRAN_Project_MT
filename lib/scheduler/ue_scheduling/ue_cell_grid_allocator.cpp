@@ -1136,7 +1136,9 @@ ul_alloc_result ue_cell_grid_allocator::allocate_ul_grant(du_cell_index_t       
   h_ul->save_grant_params(pusch_sched_ctx, msg.pusch_cfg);
 
   // Register UL allocations for this slot.
-  u.handle_ul_transport_block_info(h_ul->get_grant_params().tbs_bytes);
+  // This is crucial for our metric / tbs_bytes is grant_size
+  std::vector<ul_logical_channel_manager::ul_lcg_grant_result> ul_lcg_grant_results = u.handle_ul_transport_block_info(h_ul->get_grant_params().tbs_bytes);
+  msg.pusch_cfg.lcg_grant_results = ul_lcg_grant_results;
 
   // Update DRX state given the new allocation.
   u.drx_controller().on_new_pdcch_alloc(pdcch_alloc.slot);

@@ -29,6 +29,7 @@
 #include "srsran/scheduler/harq_id.h"
 #include "srsran/scheduler/result/dmrs_info.h"
 #include "srsran/scheduler/result/vrb_alloc.h"
+#include "../../../../lib/scheduler/ue_context/ul_logical_channel_manager.h"
 
 namespace srsran {
 
@@ -86,6 +87,8 @@ struct pusch_information {
   /// to zero in any of the following conditions: 1) CBG is not supported or requested 2) newData=1 (new transmission)
   /// 3) tbSize=0.
   uint16_t num_cb;
+  /// @brief Number of bytes scheduled for the PUSCH and number of bytes requested by BSR for each LCG.
+  std::vector<ul_logical_channel_manager::ul_lcg_grant_result> lcg_grant_results;
 };
 
 struct uci_info {

@@ -103,6 +103,7 @@ private:
   metric_meas_getter_func_t get_cqi;
   metric_meas_getter_func_t get_rsrp;
   metric_meas_getter_func_t get_rsrq;
+  metric_meas_getter_func_t get_per_data_volume_ul;
   metric_meas_getter_func_t get_prb_avail_dl;
   metric_meas_getter_func_t get_prb_avail_ul;
   metric_meas_getter_func_t get_prb_used_dl;

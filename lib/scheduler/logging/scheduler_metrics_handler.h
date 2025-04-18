@@ -81,6 +81,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator
       unsigned sum_ul_ce_delay_slots          = 0;
       unsigned max_ul_ce_delay_slots          = 0;
       unsigned nof_ul_ces                     = 0;
+      std::array<lcg_report, MAX_NOF_LCGS> lcg_metrics;
       /// TA statistics over the metrics report interval, in seconds.
       sample_statistics<float> ta;
       /// PUSCH TA statistics over the metrics report interval, in seconds.
